@@ -1,87 +1,59 @@
 # 💰 Personal Expense Tracker
 
-A simple command-line expense tracker built with Python.
+A simple and modular **command-line expense tracker** built with Python.
 
-The project is designed as a learning project for practicing **Python, OOP,
-file handling, data persistence, validation, testing, and Git/GitHub workflow**.
+This project was developed as a learning project to practice **Object-Oriented Programming, data persistence, input validation, unit testing, and Git/GitHub workflow**.
+
+---
 
 ## ✨ Features
 
-- Add expenses
-- View all expenses
-- Search expenses
-- Delete expenses
-- Categorize expenses
-- Store expense dates
-- Monthly spending summary
-- Category-wise monthly summary
-- JSON-based local data storage
-- Basic automated tests
+- ➕ Add new expenses
+- 👀 View all expenses
+- 🔎 Search expenses by category, description, or date
+- ✏️ Edit existing expenses
+- 🗑️ Delete expenses
+- 🏷️ Categorize expenses
+- 📅 Store expense dates
+- 📊 Generate monthly spending summaries
+- 📂 Generate category-wise monthly summaries
+- 💾 Store data locally using JSON
+- 🧪 Automated unit tests
+- ✅ Input validation for amount, category, description, and date
+
+---
 
 ## 🛠️ Tech Stack
 
-- Python 3.10+
-- Object-Oriented Programming
-- JSON
-- unittest
-- Git & GitHub
+| Technology | Purpose |
+|---|---|
+| Python 3.10+ | Application development |
+| OOP | Application architecture |
+| JSON | Local data persistence |
+| unittest | Automated testing |
+| Git | Version control |
+| GitHub | Source code hosting |
+
+---
 
 ## 📁 Project Structure
 
 ```text
 personal-expense-tracker/
+│
 ├── src/
-│   ├── app.py
-│   ├── expense_manager.py
-│   ├── models.py
-│   └── storage.py
+│   ├── app.py                  # Command-line interface
+│   ├── expense_manager.py      # Business logic
+│   ├── models.py               # Expense data model
+│   └── storage.py              # JSON storage layer
+│
 ├── data/
-│   └── .gitkeep
+│   └── .gitkeep                # Keeps data directory in Git
+│
 ├── tests/
-│   └── test_expense_manager.py
+│   └── test_expense_manager.py # Unit tests
+│
 ├── .gitignore
-└── README.md
-```
-
-## ▶️ Run the Project
-
-Clone the repository:
-
-```bash
-git clone https://github.com/Abdulla0091/personal-expense-tracker.git
-cd personal-expense-tracker
-```
-
-Run:
-
-```bash
-python src/app.py
-```
-
-## 🧪 Run Tests
-
-```bash
-python -m unittest discover -s tests -v
-```
-
-## 🔮 Future Improvements
-
-- Edit existing expenses
-- SQLite database
-- Budget tracking
-- Spending charts
-- GUI version
-- Web version with a REST API
-- User authentication
-
-## 📚 What I Learned
-
-This project is helping me practice how to structure a small application into
-separate layers for models, storage, business logic, and user interaction.
-
-## 👨‍💻 Author
-
-**Abdulla Al Noman**
-
-- GitHub: https://github.com/Abdulla0091
-- LinkedIn: https://www.linkedin.com/in/abdulla-al-noman-24046b237/
+├── LICENSE
+├── README.md
+└── requirements.txt
