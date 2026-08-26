@@ -1,6 +1,7 @@
 from datetime import date
 
 from expense_manager import ExpenseManager
+from models import Expense
 from storage import JSONStorage
 
 
@@ -10,7 +11,7 @@ def print_header(title: str) -> None:
     print("=" * 50)
 
 
-def print_expenses(expenses) -> None:
+def print_expenses(expenses: list[Expense]) -> None:
     if not expenses:
         print("No expenses found.")
         return
@@ -45,6 +46,7 @@ def add_expense(manager: ExpenseManager) -> None:
             description,
             expense_date,
         )
+
         print(f"\nExpense #{expense.id} added successfully.")
 
     except ValueError as error:
@@ -56,21 +58,9 @@ def view_expenses(manager: ExpenseManager) -> None:
     print_expenses(manager.get_all())
 
 
-def delete_expense(manager: ExpenseManager) -> None:
-    print_header("Delete Expense")
-
-    try:
-        expense_id = int(input("Expense ID: ").strip())
-        if manager.delete_expense(expense_id):
-            print("Expense deleted successfully.")
-        else:
-            print("Expense not found.")
-    except ValueError:
-        print("Please enter a valid numeric ID.")
-
-
 def search_expenses(manager: ExpenseManager) -> None:
     print_header("Search Expenses")
+
     keyword = input("Search keyword: ").strip()
     print_expenses(manager.search(keyword))
 
@@ -91,6 +81,7 @@ def monthly_summary(manager: ExpenseManager) -> None:
 
         if by_category:
             print("\nBy category:")
+
             for category, amount in sorted(by_category.items()):
                 print(f"- {category}: {amount:.2f}")
         else:
@@ -100,33 +91,88 @@ def monthly_summary(manager: ExpenseManager) -> None:
         print(f"Error: {error}")
 
 
+def edit_expense(manager: ExpenseManager) -> None:
+    print_header("Edit Expense")
+
+    try:
+        expense_id = int(input("Expense ID: ").strip())
+        expense = manager.get_by_id(expense_id)
+
+        if expense is None:
+            print("Expense not found.")
+            return
+
+        print("\nCurrent expense:")
+        print_expenses([expense])
+
+        print("\nEnter the new information:")
+
+        amount = float(input("New amount: ").strip())
+        category = input("New category: ").strip()
+        description = input("New description: ").strip()
+        expense_date = input("New date [YYYY-MM-DD]: ").strip()
+
+        updated = manager.update_expense(
+            expense_id,
+            amount,
+            category,
+            description,
+            expense_date,
+        )
+
+        if updated:
+            print(f"\nExpense #{updated.id} updated successfully.")
+
+    except ValueError as error:
+        print(f"\nError: {error}")
+
+
+def delete_expense(manager: ExpenseManager) -> None:
+    print_header("Delete Expense")
+
+    try:
+        expense_id = int(input("Expense ID: ").strip())
+
+        if manager.delete_expense(expense_id):
+            print("Expense deleted successfully.")
+        else:
+            print("Expense not found.")
+
+    except ValueError:
+        print("Please enter a valid numeric ID.")
+
+
 def main() -> None:
     manager = ExpenseManager(JSONStorage())
 
+    actions = {
+        "1": add_expense,
+        "2": view_expenses,
+        "3": search_expenses,
+        "4": monthly_summary,
+        "5": edit_expense,
+        "6": delete_expense,
+    }
+
     while True:
         print_header("Personal Expense Tracker")
+
         print("1. Add expense")
         print("2. View expenses")
         print("3. Search expenses")
         print("4. Monthly summary")
-        print("5. Delete expense")
+        print("5. Edit expense")
+        print("6. Delete expense")
         print("0. Exit")
 
         choice = input("\nChoose an option: ").strip()
-
-        actions = {
-            "1": add_expense,
-            "2": view_expenses,
-            "3": search_expenses,
-            "4": monthly_summary,
-            "5": delete_expense,
-        }
 
         if choice == "0":
             print("\nGoodbye!")
             break
 
         action = actions.get(choice)
+
         if action:
             action(manager)
         else:

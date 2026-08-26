@@ -57,8 +57,44 @@ class ExpenseManager:
             None,
         )
 
+    def update_expense(
+        self,
+        expense_id: int,
+        amount: float,
+        category: str,
+        description: str,
+        expense_date: str,
+    ) -> Expense | None:
+        """Update an existing expense while keeping its ID."""
+
+        expense = self.get_by_id(expense_id)
+
+        if expense is None:
+            return None
+
+        if amount <= 0:
+            raise ValueError("Amount must be greater than zero.")
+
+        if not category.strip():
+            raise ValueError("Category cannot be empty.")
+
+        if not description.strip():
+            raise ValueError("Description cannot be empty.")
+
+        self._validate_date(expense_date)
+
+        expense.amount = round(amount, 2)
+        expense.category = category.strip().title()
+        expense.description = description.strip()
+        expense.expense_date = expense_date
+
+        self.storage.save(self.expenses)
+
+        return expense
+
     def delete_expense(self, expense_id: int) -> bool:
         expense = self.get_by_id(expense_id)
+
         if expense is None:
             return False
 
@@ -68,6 +104,7 @@ class ExpenseManager:
 
     def search(self, keyword: str) -> list[Expense]:
         keyword = keyword.lower().strip()
+
         return [
             expense
             for expense in self.get_all()
@@ -76,10 +113,16 @@ class ExpenseManager:
             or keyword in expense.expense_date.lower()
         ]
 
-    def monthly_summary(self, year: int, month: int) -> tuple[float, dict[str, float]]:
+    def monthly_summary(
+        self,
+        year: int,
+        month: int,
+    ) -> tuple[float, dict[str, float]]:
         prefix = f"{year:04d}-{month:02d}"
+
         matching = [
-            expense for expense in self.expenses
+            expense
+            for expense in self.expenses
             if expense.expense_date.startswith(prefix)
         ]
 
@@ -88,7 +131,8 @@ class ExpenseManager:
 
         for expense in matching:
             by_category[expense.category] = round(
-                by_category.get(expense.category, 0) + expense.amount, 2
+                by_category.get(expense.category, 0) + expense.amount,
+                2,
             )
 
         return total, by_category
