@@ -10,8 +10,17 @@ This project was developed as a learning project to practice **Object-Oriented P
 
 ## 📸 Application Preview
 
-![Personal Expense Tracker](screenshots/app-preview.png)
-![alt text](<3Screenshot 2026-08-28 021711.png>) ![alt text](<1Screenshot 2026-08-28 021612.png>) ![alt text](<2Screenshot 2026-08-28 021647.png>)
+### Main Menu
+
+![Personal Expense Tracker - Main Menu](screenshots/1Screenshot%202026-08-28%20021612.png)
+
+### Expense Management
+
+![Personal Expense Tracker - Expense Management](screenshots/2Screenshot%202026-08-28%20021647.png)
+
+### Expense Summary
+
+![Personal Expense Tracker - Summary](screenshots/3Screenshot%202026-08-28%20021711.png)
 
 ---
 
@@ -65,7 +74,9 @@ personal-expense-tracker/
 │   └── .gitkeep                # Keeps data directory in Git
 │
 ├── screenshots/
-│   └── app-preview.png         # Application screenshot
+│   ├── 1Screenshot 2026-08-28 021612.png
+│   ├── 2Screenshot 2026-08-28 021647.png
+│   └── 3Screenshot 2026-08-28 021711.png
 │
 ├── .github/
 │   └── workflows/
@@ -154,7 +165,7 @@ This project uses **GitHub Actions** to automatically run the Python unit tests 
 
 The workflow helps ensure that new changes do not break existing functionality.
 
-**Current status:**
+### Current Status
 
 * ✅ 20/20 unit tests passing
 * ✅ GitHub Actions passing
