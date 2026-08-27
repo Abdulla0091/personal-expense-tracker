@@ -21,6 +21,7 @@ class ExpenseManager:
         description: str,
         expense_date: str | None = None,
     ) -> Expense:
+
         if amount <= 0:
             raise ValueError("Amount must be greater than zero.")
 
@@ -40,8 +41,10 @@ class ExpenseManager:
             description,
             expense_date,
         )
+
         self.expenses.append(expense)
         self.storage.save(self.expenses)
+
         return expense
 
     def get_all(self) -> list[Expense]:
@@ -60,33 +63,46 @@ class ExpenseManager:
     def update_expense(
         self,
         expense_id: int,
-        amount: float,
-        category: str,
-        description: str,
-        expense_date: str,
+        amount: float | None = None,
+        category: str | None = None,
+        description: str | None = None,
+        expense_date: str | None = None,
     ) -> Expense | None:
-        """Update an existing expense while keeping its ID."""
+        """Update an existing expense safely and save the changes."""
 
         expense = self.get_by_id(expense_id)
 
         if expense is None:
             return None
 
-        if amount <= 0:
-            raise ValueError("Amount must be greater than zero.")
+        # Validate everything BEFORE changing the expense
+        if amount is not None:
+            if amount <= 0:
+                raise ValueError("Amount must be greater than zero.")
 
-        if not category.strip():
-            raise ValueError("Category cannot be empty.")
+        if category is not None:
+            if not category.strip():
+                raise ValueError("Category cannot be empty.")
 
-        if not description.strip():
-            raise ValueError("Description cannot be empty.")
+        if description is not None:
+            if not description.strip():
+                raise ValueError("Description cannot be empty.")
 
-        self._validate_date(expense_date)
+        if expense_date is not None:
+            self._validate_date(expense_date)
 
-        expense.amount = round(amount, 2)
-        expense.category = category.strip().title()
-        expense.description = description.strip()
-        expense.expense_date = expense_date
+        # Apply changes only after ALL validation passes
+        if amount is not None:
+            expense.amount = round(amount, 2)
+
+        if category is not None:
+            expense.category = category.strip().title()
+
+        if description is not None:
+            expense.description = description.strip()
+
+        if expense_date is not None:
+            expense.expense_date = expense_date
 
         self.storage.save(self.expenses)
 
@@ -100,6 +116,7 @@ class ExpenseManager:
 
         self.expenses.remove(expense)
         self.storage.save(self.expenses)
+
         return True
 
     def search(self, keyword: str) -> list[Expense]:
@@ -118,6 +135,7 @@ class ExpenseManager:
         year: int,
         month: int,
     ) -> tuple[float, dict[str, float]]:
+
         prefix = f"{year:04d}-{month:02d}"
 
         matching = [
@@ -126,7 +144,11 @@ class ExpenseManager:
             if expense.expense_date.startswith(prefix)
         ]
 
-        total = round(sum(expense.amount for expense in matching), 2)
+        total = round(
+            sum(expense.amount for expense in matching),
+            2,
+        )
+
         by_category: dict[str, float] = {}
 
         for expense in matching:
@@ -142,4 +164,6 @@ class ExpenseManager:
         try:
             datetime.strptime(value, "%Y-%m-%d")
         except ValueError as exc:
-            raise ValueError("Date must use YYYY-MM-DD format.") from exc
+            raise ValueError(
+                "Date must use YYYY-MM-DD format."
+            ) from exc
