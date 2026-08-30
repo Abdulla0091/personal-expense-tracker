@@ -1,4 +1,5 @@
 from datetime import date
+from pathlib import Path
 from expense_manager import ExpenseManager
 from models import Expense
 from storage import JSONStorage
@@ -156,6 +157,23 @@ def edit_expense(manager: ExpenseManager) -> None:
         print(f"\nError: {error}")
 
 
+
+def export_expenses(manager: ExpenseManager) -> None:
+    print_header("Export Expenses")
+
+    file_path = Path("data") / "expenses.csv"
+
+    try:
+        file_path.parent.mkdir(parents=True, exist_ok=True)
+
+        count = manager.export_to_csv(str(file_path))
+
+        print(f"\nSuccessfully exported {count} expense(s).")
+        print(f"File: {file_path}")
+
+    except OSError as error:
+        print(f"\nError exporting expenses: {error}")
+
 def delete_expense(manager: ExpenseManager) -> None:
     print_header("Delete Expense")
 
@@ -182,6 +200,7 @@ def main() -> None:
     "5": category_monthly_summary,
     "6": edit_expense,
     "7": delete_expense,
+    "8": export_expenses,
     }
 
     while True:
@@ -194,6 +213,7 @@ def main() -> None:
         print("5. Category-wise monthly summary")
         print("6. Edit expense")
         print("7. Delete expense")
+        print("8. Export expenses to CSV")
         print("0. Exit")
         choice = input("\nChoose an option: ").strip()
 

@@ -158,7 +158,36 @@ class ExpenseManager:
             )
 
         return total, by_category
-    
+
+    def export_to_csv(self, file_path: str) -> int:
+        """Export all expenses to a CSV file."""
+
+        import csv
+
+        expenses = self.get_all()
+
+        with open(file_path, "w", newline="", encoding="utf-8") as file:
+            writer = csv.writer(file)
+
+            writer.writerow([
+                "ID",
+                "Amount",
+                "Category",
+                "Description",
+                "Date",
+            ])
+
+            for expense in expenses:
+                writer.writerow([
+                    expense.id,
+                    expense.amount,
+                    expense.category,
+                    expense.description,
+                    expense.expense_date,
+                ])
+
+        return len(expenses)
+        
     def category_monthly_summary(
         self,
         year: int,

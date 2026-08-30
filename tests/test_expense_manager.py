@@ -330,6 +330,40 @@ class ExpenseManagerTests(unittest.TestCase):
                 "2026-08-25",
             )
 
+    # -------------------------
+    # CSV Export Tests
+    # -------------------------
+
+    def test_export_to_csv(self):
+        self.manager.add_expense(
+            500,
+            "Food",
+            "Lunch",
+            "2026-08-30",
+        )
+
+        self.manager.add_expense(
+            700,
+            "Transport",
+            "Bus",
+            "2026-08-30",
+        )
+
+        csv_path = Path(self.temp_dir.name) / "expenses.csv"
+
+        count = self.manager.export_to_csv(str(csv_path))
+
+        self.assertEqual(count, 2)
+        self.assertTrue(csv_path.exists())
+
+        content = csv_path.read_text(encoding="utf-8")
+
+        self.assertIn("ID,Amount,Category,Description,Date", content)
+        self.assertIn("Food", content)
+        self.assertIn("Transport", content)
+        self.assertIn("Lunch", content)
+        self.assertIn("Bus", content)
+
 
 if __name__ == "__main__":
     unittest.main()
