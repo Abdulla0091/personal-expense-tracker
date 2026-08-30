@@ -238,6 +238,42 @@ class ExpenseManagerTests(unittest.TestCase):
 
         self.assertEqual(total, 0)
         self.assertEqual(categories, {})
+        
+    def test_category_monthly_summary(self):
+        self.manager.add_expense(
+            500,
+            "Food",
+            "Lunch",
+            "2026-08-10",
+        )
+        self.manager.add_expense(
+            300,
+            "Transport",
+            "Bus",
+            "2026-08-15",
+        )
+        self.manager.add_expense(
+            250,
+            "Food",
+            "Dinner",
+            "2026-08-20",
+        )
+        self.manager.add_expense(
+            1000,
+            "Shopping",
+            "Clothes",
+            "2026-07-20",
+        )
+
+        result = self.manager.category_monthly_summary(2026, 8)
+
+        self.assertEqual(
+            result,
+            {
+                "Food": 750,
+                "Transport": 300,
+            },
+        )    
 
     # -------------------------
     # Update Expense Tests

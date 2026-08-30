@@ -1,5 +1,4 @@
 from datetime import date
-
 from expense_manager import ExpenseManager
 from models import Expense
 from storage import JSONStorage
@@ -90,7 +89,37 @@ def monthly_summary(manager: ExpenseManager) -> None:
     except ValueError as error:
         print(f"Error: {error}")
 
+def category_monthly_summary(manager: ExpenseManager) -> None:
+    print_header("Category-wise Monthly Summary")
 
+    try:
+        year = int(input("Year: ").strip())
+        month = int(input("Month (1-12): ").strip())
+
+        if not 1 <= month <= 12:
+            raise ValueError("Month must be between 1 and 12.")
+
+        summary = manager.category_monthly_summary(year, month)
+
+        if not summary:
+            print("\nNo expenses found for this month.")
+            return
+
+        print(f"\nCategory breakdown for {year}-{month:02d}:")
+        print("-" * 40)
+
+        total = 0
+
+        for category, amount in summary.items():
+            print(f"{category:<25} {amount:>10.2f}")
+            total += amount
+
+        print("-" * 40)
+        print(f"{'Total':<25} {total:>10.2f}")
+
+    except ValueError as error:
+        print(f"\nError: {error}")
+        
 def edit_expense(manager: ExpenseManager) -> None:
     print_header("Edit Expense")
 
@@ -146,12 +175,13 @@ def main() -> None:
     manager = ExpenseManager(JSONStorage())
 
     actions = {
-        "1": add_expense,
-        "2": view_expenses,
-        "3": search_expenses,
-        "4": monthly_summary,
-        "5": edit_expense,
-        "6": delete_expense,
+    "1": add_expense,
+    "2": view_expenses,
+    "3": search_expenses,
+    "4": monthly_summary,
+    "5": category_monthly_summary,
+    "6": edit_expense,
+    "7": delete_expense,
     }
 
     while True:
@@ -161,10 +191,10 @@ def main() -> None:
         print("2. View expenses")
         print("3. Search expenses")
         print("4. Monthly summary")
-        print("5. Edit expense")
-        print("6. Delete expense")
+        print("5. Category-wise monthly summary")
+        print("6. Edit expense")
+        print("7. Delete expense")
         print("0. Exit")
-
         choice = input("\nChoose an option: ").strip()
 
         if choice == "0":

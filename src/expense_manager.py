@@ -158,6 +158,27 @@ class ExpenseManager:
             )
 
         return total, by_category
+    
+    def category_monthly_summary(
+        self,
+        year: int,
+        month: int,
+    ) -> dict[str, float]:
+        """Return total expenses grouped by category for a month."""
+
+        prefix = f"{year:04d}-{month:02d}"
+
+        summary: dict[str, float] = {}
+
+        for expense in self.expenses:
+            if expense.expense_date.startswith(prefix):
+                category = expense.category
+                summary[category] = round(
+                    summary.get(category, 0) + expense.amount,
+                    2,
+                )
+
+        return dict(sorted(summary.items()))
 
     @staticmethod
     def _validate_date(value: str) -> None:
