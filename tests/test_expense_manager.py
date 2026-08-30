@@ -7,15 +7,21 @@ import sys
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from expense_manager import ExpenseManager
-from storage import JSONStorage
+from storage import BudgetStorage, JSONStorage
 
 
 class ExpenseManagerTests(unittest.TestCase):
 
     def setUp(self):
         self.temp_dir = tempfile.TemporaryDirectory()
-        path = Path(self.temp_dir.name) / "expenses.json"
-        self.manager = ExpenseManager(JSONStorage(path))
+
+        expense_path = Path(self.temp_dir.name) / "expenses.json"
+        budget_path = Path(self.temp_dir.name) / "budgets.json"
+
+        self.manager = ExpenseManager(
+            JSONStorage(expense_path),
+            BudgetStorage(budget_path),
+        )
 
     def tearDown(self):
         self.temp_dir.cleanup()
@@ -329,7 +335,96 @@ class ExpenseManagerTests(unittest.TestCase):
                 "Dinner",
                 "2026-08-25",
             )
+    # -------------------------
+    # Budget Management Tests
+    # -------------------------
 
+    def test_set_monthly_budget(self):
+        budget = self.manager.set_monthly_budget(2026, 8, 10000)
+
+        self.assertEqual(budget, 10000)
+        self.assertEqual(
+            self.manager.get_monthly_budget(2026, 8),
+            10000,
+        )
+
+    def test_update_monthly_budget(self):
+        self.manager.set_monthly_budget(2026, 8, 10000)
+
+        updated = self.manager.set_monthly_budget(2026, 8, 12000)
+
+        self.assertEqual(updated, 12000)
+        self.assertEqual(
+            self.manager.get_monthly_budget(2026, 8),
+            12000,
+        )
+
+    def test_get_monthly_budget_returns_zero_when_not_set(self):
+        budget = self.manager.get_monthly_budget(2026, 8)
+
+        self.assertEqual(budget, 0.0)
+
+    def test_set_monthly_budget_rejects_zero_amount(self):
+        with self.assertRaises(ValueError):
+            self.manager.set_monthly_budget(2026, 8, 0)
+
+    def test_set_monthly_budget_rejects_negative_amount(self):
+        with self.assertRaises(ValueError):
+            self.manager.set_monthly_budget(2026, 8, -500)
+
+    def test_get_budget_remaining(self):
+        self.manager.set_monthly_budget(2026, 8, 10000)
+
+        self.manager.add_expense(
+            2500,
+            "Food",
+            "Lunch",
+            "2026-08-24",
+        )
+
+        self.manager.add_expense(
+            1500,
+            "Transport",
+            "Bus",
+            "2026-08-25",
+        )
+
+        remaining = self.manager.get_budget_remaining(2026, 8)
+
+        self.assertEqual(remaining, 6000)
+
+    def test_get_budget_status_within_budget(self):
+        self.manager.set_monthly_budget(2026, 8, 10000)
+
+        self.manager.add_expense(
+            4000,
+            "Food",
+            "Lunch",
+            "2026-08-24",
+        )
+
+        status = self.manager.get_budget_status(2026, 8)
+
+        self.assertEqual(status, "Within budget")
+
+    def test_get_budget_status_budget_exceeded(self):
+        self.manager.set_monthly_budget(2026, 8, 5000)
+
+        self.manager.add_expense(
+            6000,
+            "Shopping",
+            "Clothes",
+            "2026-08-24",
+        )
+
+        status = self.manager.get_budget_status(2026, 8)
+
+        self.assertEqual(status, "Budget exceeded")
+
+    def test_get_budget_status_when_no_budget_set(self):
+        status = self.manager.get_budget_status(2026, 8)
+
+        self.assertEqual(status, "No budget set")
     # -------------------------
     # CSV Export Tests
     # -------------------------
