@@ -1,15 +1,22 @@
 from datetime import datetime
 
 from models import Expense
-from storage import JSONStorage
+from storage import BudgetStorage, JSONStorage
 
 
 class ExpenseManager:
     """Business logic for creating and managing expenses."""
 
-    def __init__(self, storage: JSONStorage):
+    def __init__(
+        self,
+        storage: JSONStorage,
+        budget_storage: BudgetStorage | None = None,
+    ):
         self.storage = storage
         self.expenses = self.storage.load()
+
+        self.budget_storage = budget_storage or BudgetStorage()
+        self.budgets = self.budget_storage.load()
 
     def _next_id(self) -> int:
         return max((expense.id for expense in self.expenses), default=0) + 1
@@ -208,6 +215,78 @@ class ExpenseManager:
                 )
 
         return dict(sorted(summary.items()))
+    def set_monthly_budget(
+        self,
+        year: int,
+        month: int,
+        amount: float,
+    ) -> float:
+        """Set or update the budget for a specific month."""
+
+        self._validate_month(year, month)
+
+        if amount <= 0:
+            raise ValueError("Budget amount must be greater than zero.")
+
+        key = f"{year:04d}-{month:02d}"
+        self.budgets[key] = round(amount, 2)
+        self.budget_storage.save(self.budgets)
+
+        return self.budgets[key]
+
+    def get_monthly_budget(
+        self,
+        year: int,
+        month: int,
+    ) -> float:
+        """Return the budget for a month, or zero if no budget is set."""
+
+        self._validate_month(year, month)
+
+        key = f"{year:04d}-{month:02d}"
+        return self.budgets.get(key, 0.0)
+
+    def get_budget_remaining(
+        self,
+        year: int,
+        month: int,
+    ) -> float:
+        """Return remaining budget after monthly spending."""
+
+        budget = self.get_monthly_budget(year, month)
+        spending, _ = self.monthly_summary(year, month)
+
+        return round(budget - spending, 2)
+
+    def get_budget_status(
+        self,
+        year: int,
+        month: int,
+    ) -> str:
+        """Return the current budget status for a month."""
+
+        budget = self.get_monthly_budget(year, month)
+
+        if budget == 0:
+            return "No budget set"
+
+        remaining = self.get_budget_remaining(year, month)
+
+        if remaining < 0:
+            return "Budget exceeded"
+
+        if remaining == 0:
+            return "Budget reached"
+
+        return "Within budget"
+
+    @staticmethod
+    def _validate_month(year: int, month: int) -> None:
+        if year < 1:
+            raise ValueError("Year must be a positive number.")
+
+        if not 1 <= month <= 12:
+            raise ValueError("Month must be between 1 and 12.")
 
     @staticmethod
     def _validate_date(value: str) -> None:

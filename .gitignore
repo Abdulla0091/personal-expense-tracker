@@ -10,3 +10,5 @@ venv/
 # Keep the generated expense data private/local.
 data/expenses.json
 data/expenses.csv
+
+data/budgets.json

@@ -156,7 +156,68 @@ def edit_expense(manager: ExpenseManager) -> None:
     except ValueError as error:
         print(f"\nError: {error}")
 
+def set_monthly_budget(manager: ExpenseManager) -> None:
+    print_header("Set Monthly Budget")
 
+    try:
+        year = int(input("Year: ").strip())
+        month = int(input("Month (1-12): ").strip())
+        amount = float(input("Monthly budget: ").strip())
+
+        budget = manager.set_monthly_budget(year, month, amount)
+
+        print(
+            f"\nMonthly budget for {year}-{month:02d} "
+            f"set to {budget:.2f}."
+        )
+
+    except ValueError as error:
+        print(f"\nError: {error}")
+
+
+def view_monthly_budget(manager: ExpenseManager) -> None:
+    print_header("Monthly Budget")
+
+    try:
+        year = int(input("Year: ").strip())
+        month = int(input("Month (1-12): ").strip())
+
+        budget = manager.get_monthly_budget(year, month)
+        spending, _ = manager.monthly_summary(year, month)
+        remaining = manager.get_budget_remaining(year, month)
+        status = manager.get_budget_status(year, month)
+
+        print(f"\nMonth: {year}-{month:02d}")
+        print(f"Budget:    {budget:.2f}")
+        print(f"Spending:  {spending:.2f}")
+        print(f"Remaining: {remaining:.2f}")
+        print(f"Status:    {status}")
+
+    except ValueError as error:
+        print(f"\nError: {error}")
+
+
+def budget_management(manager: ExpenseManager) -> None:
+    while True:
+        print_header("Budget Management")
+
+        print("1. Set monthly budget")
+        print("2. View monthly budget")
+        print("0. Back")
+
+        choice = input("\nChoose an option: ").strip()
+
+        if choice == "0":
+            break
+
+        if choice == "1":
+            set_monthly_budget(manager)
+        elif choice == "2":
+            view_monthly_budget(manager)
+        else:
+            print("\nInvalid option. Please choose from the menu.")
+
+        input("\nPress Enter to continue...")
 
 def export_expenses(manager: ExpenseManager) -> None:
     print_header("Export Expenses")
@@ -201,6 +262,7 @@ def main() -> None:
     "6": edit_expense,
     "7": delete_expense,
     "8": export_expenses,
+    "9": budget_management,
     }
 
     while True:
@@ -214,6 +276,7 @@ def main() -> None:
         print("6. Edit expense")
         print("7. Delete expense")
         print("8. Export expenses to CSV")
+        print("9. Budget Management")
         print("0. Exit")
         choice = input("\nChoose an option: ").strip()
 
